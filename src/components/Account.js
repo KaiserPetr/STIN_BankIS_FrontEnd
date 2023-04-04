@@ -81,7 +81,7 @@ export default function Account({ clientId, loginCallback }) {
                 let date = today.getDate() + '.' + (today.getMonth() + 1) + '.' + today.getFullYear()
                 if (date != exRateDate){
                     if (today.getHours() == 10 && today.getMinutes() >= 20 && today.getMinutes <= 50){
-                        axios.get("http://localhost:8081/downloadExchangeRates")
+                        axios.get(`${process.env.REACT_APP_BASE_URL}/downloadExchangeRates`)
                         .then( res=> {
                             setExRateDate(res.data)
                         })
@@ -95,17 +95,17 @@ export default function Account({ clientId, loginCallback }) {
 
     React.useEffect(() => {
         try {
-            axios.post("http://localhost:8081/getUserData",clientId)
+            axios.post(`${process.env.REACT_APP_BASE_URL}/getUserData`,clientId)
             .then(res => {
                 setUserData(res.data);
                 
             })
-            axios.post("http://localhost:8081/getAccountsData",clientId)
+            axios.post(`${process.env.REACT_APP_BASE_URL}/getAccountsData`,clientId)
             .then(res => {
                 setAccountData(res.data);
                 setSelectedAccount(res.data[0])
                 handleUserAccounts(res.data)
-                axios.post("http://localhost:8081/getTransactions",res.data[0].accountNumber)
+                axios.post(`${process.env.REACT_APP_BASE_URL}/getTransactions`,res.data[0].accountNumber)
                 .then(resTrans => {
                     setTransactions([])
                     resTrans.data.forEach(t => {
@@ -120,7 +120,7 @@ export default function Account({ clientId, loginCallback }) {
                 setExRateDate(res.data)
             })
             */
-            axios.get("http://localhost:8081/getAllCurrencies")
+            axios.get(`${process.env.REACT_APP_BASE_URL}/getAllCurrencies`)
             .then(res => {
                 setAllCurrencies([]);
                 setAllCurrencies(res.data);
@@ -189,11 +189,11 @@ export default function Account({ clientId, loginCallback }) {
             setNewAccRes("Chyba, vyplňte všechna povinná pole.")
         } else {
             let params = [clientId,newAccNum,newAccCurr]
-            axios.post("http://localhost:8081/createNewAccount",params)
+            axios.post(`${process.env.REACT_APP_BASE_URL}/createNewAccount`,params)
             .then(res=> {
                 switch (res.data){
                     case 0:
-                        axios.post("http://localhost:8081/getAccountsData",clientId)
+                        axios.post(`${process.env.REACT_APP_BASE_URL}/getAccountsData`,clientId)
                         .then(res => {
                             setAccountData(res.data);
                             handleUserAccounts(res.data)
@@ -212,7 +212,7 @@ export default function Account({ clientId, loginCallback }) {
         for (let i = 0; i < accountData.length; i++){
             if (accountData[i].accountNumber === e.target.value){
                 setSelectedAccount(accountData[i])
-                axios.post("http://localhost:8081/getTransactions",accountData[i].accountNumber)
+                axios.post(`${process.env.REACT_APP_BASE_URL}/getTransactions`,accountData[i].accountNumber)
                 .then(resTrans => {
                     setTransactions([])
                     resTrans.data.forEach(t => {
@@ -226,7 +226,7 @@ export default function Account({ clientId, loginCallback }) {
     }
     
     const handleRndTrans = (e) => {
-        axios.post("http://localhost:8081/generateRandomTransaction",selectedAccount.accountNumber)
+        axios.post(`${process.env.REACT_APP_BASE_URL}/generateRandomTransaction`,selectedAccount.accountNumber)
             .then(res => {
                 setPayOperator(res.data['operation'])
                 setPayWrbtr(res.data['wrbtr'])
@@ -242,12 +242,12 @@ export default function Account({ clientId, loginCallback }) {
                 setPayResult("Chyba, vyplňte všecha povinná pole.")
             } else {
                 let params = [clientId,payOperator,payWrbtr,payCurrency]
-                axios.post("http://localhost:8081/newTransaction",params)
+                axios.post(`${process.env.REACT_APP_BASE_URL}/newTransaction`,params)
                 .then(resTrans => {
                     handleTransMessage(resTrans.data)
                     if (resTrans.data != 1 && resTrans.data != 0 ){
                         //refresh transakci
-                        axios.post("http://localhost:8081/getTransactions",selectedAccount.accountNumber)
+                        axios.post(`${process.env.REACT_APP_BASE_URL}/getTransactions`,selectedAccount.accountNumber)
                         .then(res => {
                             setTransactions([])
                             res.data.forEach(t => {
@@ -255,7 +255,7 @@ export default function Account({ clientId, loginCallback }) {
                                 setTransactions(transactions => [...transactions, newTransaction]);
                             })    
                         })
-                        axios.post("http://localhost:8081/getAccountsData",clientId)
+                        axios.post(`${process.env.REACT_APP_BASE_URL}/getAccountsData`,clientId)
                         .then(res => {
                             setAccountData(res.data);
                             for (let i = 0; i < res.data.length; i++){
